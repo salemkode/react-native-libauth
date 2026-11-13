@@ -18,11 +18,11 @@ npm run test:consumer
 The Node suite covers crypto reference vectors, initialization, export
 compatibility, WASM integrity, and WebAssembly adapter contracts. Hash references
 come independently from Node crypto; signing and key references are fixed from
-libauth 3.0.0. The adapter contract tests isolate JavaScript boundary behavior.
+libauth 3.0.0; the same crypto binaries are also tested with 3.1.0-next.8. The adapter contract tests isolate JavaScript boundary behavior.
 
 The consumer test packs the actual distributable, creates a separate temporary
 app, installs the tarball without workspace links, applies patches, generates
-native code, and runs its 12 reference checks. It checks that help/invalid flags
+native code, and runs its 12 reference checks for each supported libauth version. It checks that help/invalid flags
 do not change dependencies, repeated generation is stable, and original WASM
 files remain unchanged. Temporary fixtures are retained for diagnosis; a report
 is written under `artifacts/consumer-test.json`.
@@ -96,3 +96,13 @@ reporting verification. Device timings are diagnostic, not benchmarks.
 
 There is no automatic npm publish step. Repository pushes trigger the fast and
 consumer checks; local native build/device evidence is reported separately.
+
+## XO wallet regression checks
+
+The root suite also tests the compact XO wallet, exact amount handling, network
+isolation, source-transaction validation, token exclusion, fees, cancellation,
+expiry, lost broadcasts and single-submission state. One check runs the actual
+React Native Babel transform to catch private-field lowering differences. The
+separate template consumes release tarballs and runs 12 deterministic wallet
+scenarios both in Node and through native crypto on the simulator. See docs/xo.md
+and the template testing guide for public-chain and replay limitations.

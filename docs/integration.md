@@ -3,7 +3,7 @@
 ## 1. Check compatibility
 
 Use React Native 0.81.x with the New Architecture and Hermes. This project tests
-0.81.5 with React 19.1.0. Use libauth 3.0.0, Polygen 0.2.1, and WABT 1.0.36.
+0.81.5 with React 19.1.0. Use libauth 3.0.0 or exactly 3.1.0-next.8 (required for XO), Polygen 0.2.1, and WABT 1.0.36.
 The CLI rejects an unsupported libauth version. npm is the verified package
 manager; pnpm's nested dependency layout and Yarn PnP have not been validated.
 
@@ -13,7 +13,7 @@ React Native Community CLI, not Expo.
 
 ## 2. Obtain the adapter
 
-Clone the private repository with an account that has access, then build the
+Clone the public repository, then build the
 package. Commands below run in the cloned repository:
 
 ```sh
@@ -24,7 +24,7 @@ mkdir -p artifacts
 npm pack --workspace packages/react-native-libauth --pack-destination artifacts
 ```
 
-Copy `artifacts/react-native-libauth-0.1.0.tgz` to a stable location for your app
+Copy `artifacts/react-native-libauth-0.2.0.tgz` to a stable location for your app
 and CI. Do not commit it here or rely on a temporary absolute path on another
 developer's machine. A team can place the tarball in its own authorized artifact
 store; this project has not published a registry release.
@@ -34,8 +34,8 @@ store; this project has not published a registry release.
 Run in the directory containing your app's `package.json`:
 
 ```sh
-npm install /absolute/path/react-native-libauth-0.1.0.tgz \
-  @bitauth/libauth@3.0.0 \
+npm install /absolute/path/react-native-libauth-0.2.0.tgz \
+  @bitauth/libauth@3.1.0-next.8 \
   @callstack/polygen@0.2.1 \
   react-native-get-random-values@1.11.0
 ```

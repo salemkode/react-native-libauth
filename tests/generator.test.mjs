@@ -31,3 +31,22 @@ test('malformed section lengths are rejected', () => {
   assert.throws(() => stripCustomSections(Uint8Array.from([0,97,115,109,1,0,0,0,0,128])), /Invalid/);
   assert.throws(() => stripCustomSections(Uint8Array.from([0,97,115,109,1,0,0,0,1,42])), /Truncated/);
 });
+
+test('3.1 oversized optional range is lazy and retains the exact upstream value on Node', async () => {
+  const {bigIntRange} = await import('@bitauth/libauth');
+  assert.equal(typeof Object.getOwnPropertyDescriptor(bigIntRange, 'maxVmNumber').get, 'function');
+  assert.equal(bigIntRange.maxVmNumber, 2n ** 80000n - 1n / 2n);
+  assert.equal(bigIntRange.minVmNumber, -bigIntRange.maxVmNumber);
+});
+
+test('structuredClone ponyfill preserves cyclic graphs, byte arrays and bigint values', async () => {
+  const {default: clone} = await import('@ungap/structured-clone');
+  const original = {bytes: new Uint8Array([1, 2, 255]), value: 9007199254740993n};
+  original.self = original;
+  const copy = clone(original, {lossy: false});
+  assert.notEqual(copy, original);
+  assert.notEqual(copy.bytes, original.bytes);
+  assert.deepEqual(copy.bytes, original.bytes);
+  assert.equal(copy.value, original.value);
+  assert.equal(copy.self, copy);
+});

@@ -7,6 +7,14 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+if (!process.env.LIBAUTH_VERSION) {
+  for (const version of ['3.0.0', '3.1.0-next.8']) {
+    const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], { cwd: root, env: { ...process.env, LIBAUTH_VERSION: version }, stdio: 'inherit' });
+    if (result.status !== 0) process.exit(result.status || 1);
+  }
+  process.exit(0);
+}
+const libauthVersion = process.env.LIBAUTH_VERSION;
 const directory = await mkdtemp(join(tmpdir(), 'libauth-consumer-test-'));
 await mkdir(join(root, 'artifacts'), { recursive: true });
 const environment = { ...process.env, WABT_PATH: process.env.WABT_PATH || join(root, '.tools/wabt-1.0.36/bin') };
@@ -24,7 +32,7 @@ assert.equal(packed.files.some(file => /^(example|generated\/libauth|node_module
 await writeFile(join(directory, 'package.json'), JSON.stringify({
   name: 'libauth-native-consumer-test', version: '1.0.0', private: true,
   dependencies: {
-    react: '19.1.0', 'react-native': '0.81.5', '@bitauth/libauth': '3.0.0',
+    react: '19.1.0', 'react-native': '0.81.5', '@bitauth/libauth': libauthVersion,
     '@callstack/polygen': '0.2.1', 'react-native-get-random-values': '1.11.0',
     'react-native-libauth': `file:${join(directory, packed.filename)}`,
   },
@@ -36,6 +44,7 @@ const upstream = join(directory, 'node_modules/@bitauth/libauth');
 const algorithms = ['sha1', 'sha256', 'sha512', 'ripemd160', 'secp256k1'];
 const rawHashes = await Promise.all(algorithms.map(async name => createHash('sha256').update(await readFile(join(upstream, 'build/lib/bin', name, `${name}.wasm`))).digest('hex')));
 const files = ['package.json', 'build/react-native.js', 'build/lib/crypto/default-crypto-instances.js', ...algorithms.map(name => `build/lib/bin/${name}/${name}.base64.js`)];
+if (libauthVersion === '3.1.0-next.8') files.push('build/lib/vm/instruction-sets/bch/2025/bch-2025-consensus.js');
 const beforeHelp = await readFile(join(upstream, 'package.json'), 'utf8');
 assert.match(run(process.execPath, [cli, '--help']), /Usage:/);
 assert.equal(await readFile(join(upstream, 'package.json'), 'utf8'), beforeHelp);
@@ -63,5 +72,5 @@ run(process.execPath, ['--input-type=module', '-e', `
   assert.equal(results.length, 12);
   assert.deepEqual(results.filter(result => result.status !== 'passed'), []);
 `]);
-await writeFile(join(root, 'artifacts/consumer-test.json'), JSON.stringify({ directory, packedBytes: packed.size, status: 'passed', checks: ['tarball contents', 'fresh consumer install', 'non-mutating help and invalid flags', 'repeatable generation', 'five generated native modules', 'upstream WASM unchanged', '12 consumer crypto checks'] }, null, 2) + '\n');
+await writeFile(join(root, `artifacts/consumer-test-${libauthVersion}.json`), JSON.stringify({ directory, libauthVersion, packedBytes: packed.size, status: 'passed', checks: ['tarball contents', 'fresh consumer install', 'non-mutating help and invalid flags', 'repeatable generation', 'five generated native modules', 'upstream WASM unchanged', '12 consumer crypto checks'] }, null, 2) + '\n');
 console.log('Consumer package test passed: fresh install, repeatable generation, unchanged upstream WASM, and all 12 crypto checks.');

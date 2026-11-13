@@ -22,11 +22,23 @@ test bench, not something consumers need to install.
 **Start here:** [run the example](#run-the-example) · [use in your app](docs/integration.md)
 · [contribute](CONTRIBUTING.md) · [agent instructions](AGENTS.md)
 
+## Bitcoin Cash wallet template
+
+Want a small wallet you can customize? Start with the separate
+[XO React Native Wallet template](https://github.com/salemkode/xo-react-native-wallet).
+It uses the `react-native-xo` companion package in this repository, real XO
+primitives, and this native libauth adapter. It supports BCH send/receive and
+Chipnet/Mainnet settings. See the [XO package guide](packages/react-native-xo/README.md)
+for using that wallet core in an existing app.
+
+The full `@xo-cash/engine` is outside this integration: its storage and invitation
+workflow are not provided. See [XO integration decisions](docs/xo.md).
+
 ## What is supported?
 
 | Component | Supported / tested version |
 | --- | --- |
-| Libauth | `@bitauth/libauth` **3.0.0** |
+| Libauth | **3.0.0** and **3.1.0-next.8** (XO integration) |
 | React Native | **0.81.x**, tested with **0.81.5** and React **19.1.0** |
 | Architecture / engine | New Architecture / Hermes |
 | Native backend | Polygen **0.2.1**, with the included compatibility patch |
@@ -36,11 +48,13 @@ test bench, not something consumers need to install.
 
 This is an **experimental compatibility adapter**. Other React Native/libauth
 versions need testing. It is not a general C/Rust converter or a security audit.
+On Hermes, reading libauth 3.1’s optional oversized `bigIntRange` limits still
+throws RangeError. Those unused limits are loaded lazily; see [the XO notes](docs/xo.md).
+
 Native code requires a development/custom build; **Expo Go cannot load it**.
 
 ## Run the example
 
-You need access to this private repository. Authenticate with GitHub before cloning.
 For iOS, install Xcode and CocoaPods. For Android, use JDK 17, the Android SDK, and
 the NDK version configured by the example.
 
@@ -101,7 +115,9 @@ also a SHA-256 input field. The app uses fixed test keys, not a real wallet.
 
 ## Use it in your own app
 
-The adapter is **not published to npm**. Build a tarball from this repository, then
+The adapter is **not published to the npm registry**. Public release tarballs are
+[available on GitHub](https://github.com/salemkode/react-native-libauth/releases/tag/v0.2.0).
+You can also build a tarball from this repository, then
 install it into your existing React Native 0.81 app:
 
 ```sh
@@ -110,8 +126,8 @@ mkdir -p artifacts
 npm pack --workspace packages/react-native-libauth --pack-destination artifacts
 
 # In your app (replace the tarball path):
-npm install /absolute/path/react-native-libauth-0.1.0.tgz \
-  @bitauth/libauth@3.0.0 @callstack/polygen@0.2.1 \
+npm install /absolute/path/react-native-libauth-0.2.0.tgz \
+  @bitauth/libauth@3.1.0-next.8 @callstack/polygen@0.2.1 \
   react-native-get-random-values@1.11.0
 npx libauth-native --setup
 npx libauth-native
