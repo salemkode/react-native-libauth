@@ -55,8 +55,10 @@ npm run typecheck
 npm run lint
 ```
 
-`npm ci` reapplies the dependency/JavaScript patches. The toolchain command downloads
+`npm ci` reapplies the dependency/JavaScript patches. The toolchain command installs
 checksum-verified WABT into `.tools/`; it does not replace your global tools.
+On Linux x64 it builds wasm2c from pinned source; install CMake, a C++ compiler,
+and OpenSSL development headers first (`cmake g++ libssl-dev` on Ubuntu).
 Generation creates the native C/JSI sources needed by the platform build.
 
 ### iOS

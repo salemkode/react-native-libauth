@@ -68,7 +68,10 @@ npm run libauth:generate
 ```
 
 `--setup` downloads WABT 1.0.36 under your app's `.tools/` and verifies its release
-checksum. Supported downloads are macOS arm64/x64 and Linux x64. Other hosts
+checksum. macOS arm64/x64 uses release binaries. Linux x64 builds only wasm2c
+from a checksum-pinned source archive, using CMake, a C++ compiler, and OpenSSL
+development headers (`cmake g++ libssl-dev` on Ubuntu). This avoids the upstream
+Ubuntu 20.04 binary's obsolete OpenSSL 1.1 dependency. Other hosts
 must install WABT 1.0.36 and set `WABT_PATH` to its `bin` folder. The system WABT
 may be a different version; the CLI prefers the project-local installation.
 

@@ -12,6 +12,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Install Linux source-build prerequisites
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends cmake g++ libssl-dev
       - run: npm run setup:toolchain
       - run: npm run generate
       - run: npm test
