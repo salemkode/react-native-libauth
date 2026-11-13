@@ -26,12 +26,21 @@ const appRequire = createRequire(join(root, 'package.json'));
 const source = dirname(appRequire.resolve('@bitauth/libauth/package.json'));
 const algorithms = ['sha1', 'sha256', 'sha512', 'ripemd160', 'secp256k1'];
 const upstream = JSON.parse(await readFile(join(source, 'package.json'), 'utf8'));
-if (upstream.version !== '3.0.0') throw new Error('Review the generator before changing libauth versions. Expected 3.0.0.');
+if (!['3.0.0', '3.1.0-next.8'].includes(upstream.version)) throw new Error('Review the generator before changing libauth versions. Expected 3.0.0 or 3.1.0-next.8.');
 const defaultsPath = join(source, 'build/lib/crypto/default-crypto-instances.js');
 const original = await readFile(defaultsPath, 'utf8');
 if (!original.includes('await Promise.all([') && !original.startsWith('// Patched by react-native-libauth')) throw new Error('Upstream initialization changed; review the generator.');
+// 3.1 eagerly constructs an unused 80,001-bit exported limit. Hermes cannot
+// represent that value. Defer this optional property until explicitly read;
+// capable runtimes retain the exact upstream value, with no truncation.
+const rangePath = join(source, 'build/lib/vm/instruction-sets/bch/2025/bch-2025-consensus.js');
+const eagerRange = 'const maxVmNumber = base ** (maxLength * bytes) - 1n / signed;\nexport const bigIntRange = { maxVmNumber, minVmNumber: -maxVmNumber };';
+const lazyRange = '/* react-native-libauth: defer optional oversized BigInt limits. */\nconst getMaxVmNumber = () => base ** (maxLength * bytes) - 1n / signed;\nexport const bigIntRange = { get maxVmNumber() { return getMaxVmNumber(); }, get minVmNumber() { return -getMaxVmNumber(); } };';
+const rangeSource = upstream.version === '3.1.0-next.8' ? await readFile(rangePath, 'utf8') : undefined;
+if (rangeSource && !rangeSource.includes(eagerRange) && !rangeSource.includes(lazyRange)) throw new Error('Upstream BigInt limits changed; review the generator.');
 const patched = spawnSync(process.execPath, [require.resolve('patch-package/index.js'), '--patch-dir', relative(root, join(library, 'patches'))], { cwd: root, stdio: 'inherit' });
 if (patched.status !== 0) throw new Error('Could not apply the Polygen compatibility patch.');
+if (rangeSource) await writeFile(rangePath, rangeSource.replace(eagerRange, lazyRange));
 // Metro can defer named imports with inlineRequires. A native entry ensures
 // setup runs before upstream's module-level TextDecoder use, even then.
 await writeFile(join(source, 'build/react-native.js'), "import 'react-native-libauth/setup';\nexport * from './index.js';\n");

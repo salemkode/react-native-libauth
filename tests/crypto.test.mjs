@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import * as generated from '@bitauth/libauth';
 import { initializeNativeCrypto } from '@bitauth/libauth/build/lib/crypto/default-crypto-instances.js';
-import exportsBeforePatch from './upstream-exports.json' with { type: 'json' };
+import exportsBeforePatch from './upstream-exports-3.1.0-next.8.json' with { type: 'json' };
 import { cryptoChecks } from '../shared/suite.js';
 
 test('crypto fails clearly before initialization', () => {

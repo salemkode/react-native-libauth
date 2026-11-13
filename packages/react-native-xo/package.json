@@ -1,0 +1,44 @@
+{
+  "name": "react-native-xo",
+  "version": "0.1.0",
+  "description": "Small BCH send/receive wallet core using real XO primitives and native libauth in React Native.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./core": {
+      "types": "./src/core.d.ts",
+      "default": "./src/core.js"
+    },
+    "./electrum": {
+      "types": "./src/electrum.d.ts",
+      "default": "./src/electrum.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@xo-cash/primitives": "0.0.5",
+    "zod": "3.25.76"
+  },
+  "peerDependencies": {
+    "@bitauth/libauth": "3.1.0-next.8",
+    "react-native-libauth": "0.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/salemkode/react-native-libauth.git",
+    "directory": "packages/react-native-xo"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "types": "src/index.d.ts"
+}
