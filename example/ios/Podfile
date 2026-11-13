@@ -1,0 +1,50 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+platform :ios, min_ios_version_supported
+prepare_react_native_project!
+
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+target 'LibauthLab' do
+  config = use_native_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  post_install do |installer|
+    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false,
+      # :ccache_enabled => true
+    )
+    # RN 0.81's fmt 11 uses consteval paths rejected by Xcode 27's compiler.
+    # Keep runtime formatting while retaining C++20 for the JSI bridge.
+    fmt_header = File.join(installer.sandbox.root, 'fmt/include/fmt/base.h')
+    fmt_source = File.read(fmt_header)
+    detection = '#if !defined(__cpp_lib_is_constant_evaluated)'
+    if fmt_source.include?(detection)
+      File.chmod(0644, fmt_header)
+      File.write(fmt_header, fmt_source.sub(detection, "#if defined(FMT_USE_CONSTEVAL)\n// Honor the consumer's explicit setting.\n#elif !defined(__cpp_lib_is_constant_evaluated)"))
+    end
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |build_config|
+        definitions = build_config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] || ['$(inherited)']
+        build_config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = Array(definitions) + ['FMT_USE_CONSTEVAL=0']
+      end
+    end
+  end
+end

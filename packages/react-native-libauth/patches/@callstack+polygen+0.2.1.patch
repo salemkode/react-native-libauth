@@ -1,0 +1,535 @@
+diff --git a/node_modules/@callstack/polygen/android/CMakeLists.txt b/node_modules/@callstack/polygen/android/CMakeLists.txt
+index f387bcf..ea9f090 100644
+--- a/node_modules/@callstack/polygen/android/CMakeLists.txt
++++ b/node_modules/@callstack/polygen/android/CMakeLists.txt
+@@ -1,15 +1,13 @@
+-cmake_minimum_required(VERSION 3.4.1)
+-project(Wasm)
++cmake_minimum_required(VERSION 3.22.1)
++project(libauth_polygen LANGUAGES C CXX)
+ 
+-set (CMAKE_VERBOSE_MAKEFILE ON)
+-set (CMAKE_CXX_STANDARD 14)
+-
+-add_library(react-native-wasm            SHARED
+-            ../cpp/react-native-wasm.cpp
+-            cpp-adapter.cpp
+-)
+-
+-# Specifies a path to native header files.
+-include_directories(
+-            ../cpp
++file(GLOB_RECURSE POLYGEN_CPP CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../cpp/ReactNativePolygen/*.cpp")
++file(GLOB POLYGEN_C CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../cpp/wasm-rt/*.c")
++add_library(libauth_polygen STATIC ${POLYGEN_CPP} ${POLYGEN_C})
++set_target_properties(libauth_polygen PROPERTIES CXX_STANDARD 20 POSITION_INDEPENDENT_CODE ON)
++target_include_directories(libauth_polygen PUBLIC
++  "${CMAKE_CURRENT_SOURCE_DIR}/../cpp"
++  "${CMAKE_CURRENT_SOURCE_DIR}/../cpp/ReactNativePolygen"
++  "${CMAKE_CURRENT_SOURCE_DIR}/../cpp/wasm-rt"
+ )
++target_link_libraries(libauth_polygen react_codegen_RNPolygenSpec jsi reactnative)
+diff --git a/node_modules/@callstack/polygen/android/build.gradle b/node_modules/@callstack/polygen/android/build.gradle
+index 434349c..ae4345d 100644
+--- a/node_modules/@callstack/polygen/android/build.gradle
++++ b/node_modules/@callstack/polygen/android/build.gradle
+@@ -1,139 +1,22 @@
+-buildscript {
+-  // Buildscript is evaluated before everything else so we can't use getExtOrDefault
+-  def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["Wasm_kotlinVersion"]
+-
+-  repositories {
+-    google()
+-    mavenCentral()
+-  }
+-
+-  dependencies {
+-    classpath "com.android.tools.build:gradle:7.2.1"
+-    // noinspection DifferentKotlinGradleVersion
+-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+-  }
+-}
+-
+-def reactNativeArchitectures() {
+-  def value = rootProject.getProperties().get("reactNativeArchitectures")
+-  return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
+-}
+-
+-def isNewArchitectureEnabled() {
+-  return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+-}
+-
+-apply plugin: "com.android.library"
+-apply plugin: "kotlin-android"
+-
+-if (isNewArchitectureEnabled()) {
+-  apply plugin: "com.facebook.react"
+-}
+-
+-def getExtOrDefault(name) {
+-  return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["Wasm_" + name]
+-}
+-
+-def getExtOrIntegerDefault(name) {
+-  return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["Wasm_" + name]).toInteger()
+-}
+-
+-def supportsNamespace() {
+-  def parsed = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')
+-  def major = parsed[0].toInteger()
+-  def minor = parsed[1].toInteger()
+-
+-  // Namespace support was added in 7.3.0
+-  return (major == 7 && minor >= 3) || major >= 8
+-}
++apply plugin: 'com.android.library'
++apply plugin: 'com.facebook.react'
+ 
+ android {
+-  if (supportsNamespace()) {
+-    namespace "com.wasm"
+-
+-    sourceSets {
+-      main {
+-        manifest.srcFile "src/main/AndroidManifestNew.xml"
+-      }
+-    }
+-  }
+-
+-  ndkVersion getExtOrDefault("ndkVersion")
+-  compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
+-
++  namespace 'com.libauth.polygen'
++  compileSdk rootProject.ext.compileSdkVersion
++  ndkVersion rootProject.ext.ndkVersion
+   defaultConfig {
+-    minSdkVersion getExtOrIntegerDefault("minSdkVersion")
+-    targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
+-    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+-
+-    externalNativeBuild {
+-      cmake {
+-        cppFlags "-O2 -frtti -fexceptions -Wall -fstack-protector-all"
+-        abiFilters (*reactNativeArchitectures())
+-      }
+-    }
+-  }
+-
+-  externalNativeBuild {
+-    cmake {
+-      path "CMakeLists.txt"
+-    }
+-  }
+-
+-  buildFeatures {
+-    buildConfig true
+-  }
+-
+-  buildTypes {
+-    release {
+-      minifyEnabled false
+-    }
+-  }
+-
+-  lintOptions {
+-    disable "GradleCompatible"
+-  }
+-
+-  compileOptions {
+-    sourceCompatibility JavaVersion.VERSION_1_8
+-    targetCompatibility JavaVersion.VERSION_1_8
+-  }
+-
+-  sourceSets {
+-    main {
+-      if (isNewArchitectureEnabled()) {
+-        java.srcDirs += [
+-          "src/newarch",
+-          // Codegen specs
+-          "generated/java",
+-          "generated/jni"
+-        ]
+-      } else {
+-        java.srcDirs += ["src/oldarch"]
+-      }
+-    }
++    minSdk rootProject.ext.minSdkVersion
++    targetSdk rootProject.ext.targetSdkVersion
+   }
+ }
+ 
+-repositories {
+-  mavenCentral()
+-  google()
++react {
++  jsRootDir = file('../src')
++  libraryName = 'RNPolygenSpec'
++  codegenJavaPackageName = 'com.libauth.polygen'
+ }
+ 
+-def kotlin_version = getExtOrDefault("kotlinVersion")
+-
+ dependencies {
+-  // For < 0.71, this will be from the local maven repo
+-  // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
+-  //noinspection GradleDynamicVersion
+-  implementation "com.facebook.react:react-native:+"
+-  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+-}
+-
+-if (isNewArchitectureEnabled()) {
+-  react {
+-    jsRootDir = file("../src/")
+-    libraryName = "Wasm"
+-    codegenJavaPackageName = "com.wasm"
+-  }
++  implementation 'com.facebook.react:react-android'
+ }
+diff --git a/node_modules/@callstack/polygen/android/src/main/AndroidManifest.xml b/node_modules/@callstack/polygen/android/src/main/AndroidManifest.xml
+index 5f6380e..94cbbcf 100644
+--- a/node_modules/@callstack/polygen/android/src/main/AndroidManifest.xml
++++ b/node_modules/@callstack/polygen/android/src/main/AndroidManifest.xml
+@@ -1,3 +1 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.wasm">
+-</manifest>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android" />
+diff --git a/node_modules/@callstack/polygen/android/src/main/java/com/libauth/polygen/PolygenPackage.java b/node_modules/@callstack/polygen/android/src/main/java/com/libauth/polygen/PolygenPackage.java
+new file mode 100644
+index 0000000..5f252f1
+--- /dev/null
++++ b/node_modules/@callstack/polygen/android/src/main/java/com/libauth/polygen/PolygenPackage.java
+@@ -0,0 +1,21 @@
++package com.libauth.polygen;
++
++import com.facebook.react.ReactPackage;
++import com.facebook.react.bridge.NativeModule;
++import com.facebook.react.bridge.ReactApplicationContext;
++import com.facebook.react.uimanager.ViewManager;
++import java.util.Collections;
++import java.util.List;
++
++/** The TurboModule itself is registered by React Native's C++ autolinking. */
++public final class PolygenPackage implements ReactPackage {
++  @Override
++  public List<NativeModule> createNativeModules(ReactApplicationContext context) {
++    return Collections.emptyList();
++  }
++
++  @Override
++  public List<ViewManager> createViewManagers(ReactApplicationContext context) {
++    return Collections.emptyList();
++  }
++}
+diff --git a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/Loader.cpp b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/Loader.cpp
+index 0166217..a30da74 100644
+--- a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/Loader.cpp
++++ b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/Loader.cpp
+@@ -5,7 +5,6 @@
+  * LICENSE file in the root directory of this source tree.
+  */
+ #include "Loader.h"
+-#include <fmt/format.h>
+ #include <ReactNativePolygen/w2c.h>
+ 
+ namespace callstack::polygen {
+@@ -28,13 +27,13 @@ std::shared_ptr<Module> Loader::loadModuleByName(const std::string& name, const
+   
+   if (foundModule == nullptr) {
+     throw LoaderError {
+-      fmt::format("Failed to load WebAssembly Module '{}'. The module was not precompiled. Perhaps you forgot to run 'polygen generate'?", name)
++      "Failed to load WebAssembly Module '" + name + "'. Run npm run generate before building."
+     };
+   }
+   
+   if (foundModule->checksum != checksum) {
+     throw LoaderError {
+-      fmt::format("Module checksums for '{}' differ, this means that the precompiled module is different from the one that was generated. Perhaps you forgot to rebuild the project?", name)
++      "Module checksums for '" + name + "' differ. Regenerate and rebuild the app."
+     };
+   }
+   
+diff --git a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/StaticLibraryModule.h b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/StaticLibraryModule.h
+index 1eb0872..f4c795d 100644
+--- a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/StaticLibraryModule.h
++++ b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/StaticLibraryModule.h
+@@ -6,7 +6,7 @@
+  */
+ #pragma once
+ 
+-#include "Module.h"
++#include <ReactNativePolygen/WebAssembly/Module.h>
+ 
+ namespace callstack::polygen {
+ 
+diff --git a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/WebAssembly/FuncRefTable.h b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/WebAssembly/FuncRefTable.h
+index 0f00969..00f507f 100644
+--- a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/WebAssembly/FuncRefTable.h
++++ b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/WebAssembly/FuncRefTable.h
+@@ -51,7 +51,7 @@ public:
+   }
+   
+   void grow(ptrdiff_t delta) override {
+-    wasm_rt_grow_funcref_table(this->table_, delta, { nullptr, nullptr, nullptr, nullptr });
++    wasm_rt_grow_funcref_table(this->table_, delta, wasm_rt_funcref_t{});
+   }
+   
+   std::shared_ptr<TableElement> getElement(size_t index) const override {
+diff --git a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/WebAssembly/Global.h b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/WebAssembly/Global.h
+index 11791eb..74020d6 100644
+--- a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/WebAssembly/Global.h
++++ b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/WebAssembly/Global.h
+@@ -30,8 +30,8 @@ public:
+     F64,
+   };
+ 
+-  explicit Global(Type type, void* data, bool isMutable = false): type_(type), data_((Payload*)data), isMutable_(isMutable) {}
+-  explicit Global(Type type, facebook::jsi::Value value, bool isMutable = false): type_(type), isMutable_(isMutable), data_(&ownedData_) {
++  explicit Global(Type type, void* data, bool isMutable = false): isMutable_(isMutable), type_(type), data_((Payload*)data) {}
++  explicit Global(Type type, facebook::jsi::Value value, bool isMutable = false): isMutable_(isMutable), type_(type), data_(&ownedData_) {
+     setValueUnsafe(std::move(value));
+   }
+ 
+diff --git a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/gen-utils.h b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/gen-utils.h
+index eb0af92..730635d 100644
+--- a/node_modules/@callstack/polygen/cpp/ReactNativePolygen/gen-utils.h
++++ b/node_modules/@callstack/polygen/cpp/ReactNativePolygen/gen-utils.h
+@@ -31,6 +31,13 @@ typedef double f64;
+ 
+ namespace callstack::polygen {
+ 
++// WebAssembly supplies undefined for omitted JS arguments. JSI only exposes
++// `count` actual arguments; indexing beyond that array is undefined behavior.
++inline const facebook::jsi::Value& wasmArgument(const facebook::jsi::Value* args, size_t count, size_t index) {
++  static const auto missing = facebook::jsi::Value::undefined();
++  return index < count ? args[index] : missing;
++}
++
+ template <typename T>
+ T coerceToNumber(const facebook::jsi::Value& value) {
+   if (value.isUndefined() || value.isNull()) {
+diff --git a/node_modules/@callstack/polygen/cpp/ReactNativePolygen.h b/node_modules/@callstack/polygen/cpp/ReactNativePolygen.h
+new file mode 100644
+index 0000000..6101abc
+--- /dev/null
++++ b/node_modules/@callstack/polygen/cpp/ReactNativePolygen.h
+@@ -0,0 +1,2 @@
++#pragma once
++#include <ReactNativePolygen/ReactNativePolygen.h>
+diff --git a/node_modules/@callstack/polygen/dist/api/Instance.js b/node_modules/@callstack/polygen/dist/api/Instance.js
+index 835a550..ad8fc39 100644
+--- a/node_modules/@callstack/polygen/dist/api/Instance.js
++++ b/node_modules/@callstack/polygen/dist/api/Instance.js
+@@ -48,7 +48,7 @@ function validateImports(imports, metadata) {
+             throw new errors_1.LinkError(`Imported module ${importDesc.module} is not provided`);
+         }
+         const value = mod[importDesc.name];
+-        if (!value) {
++        if (value === undefined) {
+             throw new errors_1.LinkError(`Imported symbol ${importDesc.module}.${importDesc.name} is not provided`);
+         }
+         switch (importDesc.kind) {
+@@ -58,7 +58,9 @@ function validateImports(imports, metadata) {
+                 }
+                 break;
+             case 'global':
+-                if (!(value instanceof Global_1.Global)) {
++                if (typeof value === 'number') {
++                    mod[importDesc.name] = new Global_1.Global({ value: 'i32', mutable: false }, value);
++                } else if (!(value instanceof Global_1.Global)) {
+                     throw new TypeError(`Imported symbol ${importDesc.module}.${importDesc.name} is not a global`);
+                 }
+                 break;
+@@ -68,7 +70,10 @@ function validateImports(imports, metadata) {
+                 }
+                 break;
+             case 'table':
+-                throw new Error('Importing tables is not yet supported');
++                if (!(value instanceof Table_1.Table)) {
++                    throw new TypeError(`Imported symbol ${importDesc.module}.${importDesc.name} is not a table`);
++                }
++                break;
+         }
+     }
+ }
+diff --git a/node_modules/@callstack/polygen/dist/api/WebAssembly.d.ts b/node_modules/@callstack/polygen/dist/api/WebAssembly.d.ts
+index 0e4ccaa..8eb980f 100644
+--- a/node_modules/@callstack/polygen/dist/api/WebAssembly.d.ts
++++ b/node_modules/@callstack/polygen/dist/api/WebAssembly.d.ts
+@@ -23,10 +23,11 @@ export declare function validate(_bufferOrView: BufferSource): boolean;
+  */
+ export declare function compile(bufferOrView: BufferSource): Promise<Module>;
+ export declare function compileStreaming(source: Response | PromiseLike<Response>): Promise<Module>;
+-export declare function instantiate(source: Module | BufferSource, imports?: ImportObject): Promise<Instance>;
++export declare function instantiate(source: Module, imports?: ImportObject): Promise<Instance>;
++export declare function instantiate(source: BufferSource, imports?: ImportObject): Promise<WebAssemblyInstantiatedSource>;
+ export interface WebAssemblyInstantiatedSource {
+     instance: Instance;
+     module: Module;
+ }
+ export declare function instantiateStreaming(source: Response | PromiseLike<Response>, importObject?: ImportObject): Promise<WebAssemblyInstantiatedSource>;
+-//# sourceMappingURL=WebAssembly.d.ts.map
+\ No newline at end of file
++//# sourceMappingURL=WebAssembly.d.ts.map
+diff --git a/node_modules/@callstack/polygen/dist/api/WebAssembly.js b/node_modules/@callstack/polygen/dist/api/WebAssembly.js
+index 988108b..b9b3a53 100644
+--- a/node_modules/@callstack/polygen/dist/api/WebAssembly.js
++++ b/node_modules/@callstack/polygen/dist/api/WebAssembly.js
+@@ -37,7 +37,7 @@ function validate(_bufferOrView) {
+  * @return A WebAssemblyModule instance constructed from the binary data.
+  */
+ async function compile(bufferOrView) {
+-    return new Module_1.Module(ArrayBuffer.isView(bufferOrView) ? bufferOrView.buffer : bufferOrView);
++    return new Module_1.Module(ArrayBuffer.isView(bufferOrView) ? bufferOrView.buffer.slice(bufferOrView.byteOffset, bufferOrView.byteOffset + bufferOrView.byteLength) : bufferOrView);
+ }
+ async function compileStreaming(source) {
+     const response = await source;
+@@ -50,12 +50,12 @@ async function instantiate(source, imports = {}) {
+     }
+     else {
+         const module = await compile(source);
+-        return new Instance_1.Instance(module, imports);
++        return { module, instance: new Instance_1.Instance(module, imports) };
+     }
+ }
+ async function instantiateStreaming(source, importObject) {
+     const module = await compileStreaming(source);
+-    const instance = instantiate(module, importObject);
++    const instance = await instantiate(module, importObject);
+     // @ts-ignore
+     return { module, instance };
+ }
+diff --git a/node_modules/@callstack/polygen/package.json b/node_modules/@callstack/polygen/package.json
+index 8feb292..f849ff6 100644
+--- a/node_modules/@callstack/polygen/package.json
++++ b/node_modules/@callstack/polygen/package.json
+@@ -5,20 +5,23 @@
+   "source": "./src/index.ts",
+   "main": "./dist/index.js",
+   "types": "./dist/index.d.ts",
+-  "react-native": "",
++  "react-native": "./dist/index.js",
+   "bin": "cli.mjs",
+   "exports": {
+     ".": {
+       "types": "./dist/index.d.ts",
+-      "require": "./dist/index.js"
++      "require": "./dist/index.js",
++      "default": "./dist/index.js"
+     },
+     "./polyfill": {
+       "types": "./dist/polyfill.d.ts",
+-      "require": "./dist/polyfill.js"
++      "require": "./dist/polyfill.js",
++      "default": "./dist/polyfill.js"
+     },
+     "./config": {
+       "types": "./dist/config.d.ts",
+-      "require": "./dist/config.js"
++      "require": "./dist/config.js",
++      "default": "./dist/config.js"
+     },
+     "./package.json": "./package.json"
+   },
+diff --git a/node_modules/@callstack/polygen/react-native.config.js b/node_modules/@callstack/polygen/react-native.config.js
+new file mode 100644
+index 0000000..e901cb7
+--- /dev/null
++++ b/node_modules/@callstack/polygen/react-native.config.js
+@@ -0,0 +1,13 @@
++module.exports = {
++  dependency: {
++    platforms: {
++      android: {
++        packageImportPath: 'import com.libauth.polygen.PolygenPackage;',
++        packageInstance: 'new PolygenPackage()',
++        cxxModuleCMakeListsModuleName: 'libauth_polygen',
++        cxxModuleCMakeListsPath: 'CMakeLists.txt',
++        cxxModuleHeaderName: 'ReactNativePolygen',
++      },
++    },
++  },
++};
+diff --git a/node_modules/@callstack/polygen/src/api/Instance.ts b/node_modules/@callstack/polygen/src/api/Instance.ts
+index 8c4ef5d..8c38ab8 100644
+--- a/node_modules/@callstack/polygen/src/api/Instance.ts
++++ b/node_modules/@callstack/polygen/src/api/Instance.ts
+@@ -48,7 +48,7 @@ function validateImports(
+     }
+ 
+     const value = mod[importDesc.name];
+-    if (!value) {
++    if (value === undefined) {
+       throw new LinkError(
+         `Imported symbol ${importDesc.module}.${importDesc.name} is not provided`
+       );
+@@ -63,7 +63,9 @@ function validateImports(
+         }
+         break;
+       case 'global':
+-        if (!(value instanceof Global)) {
++        if (typeof value === 'number') {
++          mod[importDesc.name] = new Global({ value: 'i32', mutable: false }, value);
++        } else if (!(value instanceof Global)) {
+           throw new TypeError(
+             `Imported symbol ${importDesc.module}.${importDesc.name} is not a global`
+           );
+@@ -77,7 +79,10 @@ function validateImports(
+         }
+         break;
+       case 'table':
+-        throw new Error('Importing tables is not yet supported');
++        if (!(value instanceof Table)) {
++          throw new TypeError(`Imported symbol ${importDesc.module}.${importDesc.name} is not a table`);
++        }
++        break;
+     }
+   }
+ }
+diff --git a/node_modules/@callstack/polygen/src/api/WebAssembly.ts b/node_modules/@callstack/polygen/src/api/WebAssembly.ts
+index fba8848..e4d6647 100644
+--- a/node_modules/@callstack/polygen/src/api/WebAssembly.ts
++++ b/node_modules/@callstack/polygen/src/api/WebAssembly.ts
+@@ -40,9 +40,11 @@ export function validate(_bufferOrView: BufferSource): boolean {
+  * @param bufferOrView ArrayBuffer or DataView containing the WebAssembly module to compile
+  * @return A WebAssemblyModule instance constructed from the binary data.
+  */
+-export async function compile(bufferOrView: BufferSource): Promise<Module> {
++export async function compile(bufferOrView: BufferSource) {
+   return new Module(
+-    ArrayBuffer.isView(bufferOrView) ? bufferOrView.buffer : bufferOrView
++    ArrayBuffer.isView(bufferOrView)
++      ? bufferOrView.buffer.slice(bufferOrView.byteOffset, bufferOrView.byteOffset + bufferOrView.byteLength)
++      : bufferOrView
+   );
+ }
+ 
+@@ -54,15 +56,17 @@ export async function compileStreaming(
+   return compile(buffer);
+ }
+ 
++export function instantiate(source: Module, imports?: ImportObject): Promise<Instance>;
++export function instantiate(source: BufferSource, imports?: ImportObject): Promise<WebAssemblyInstantiatedSource>;
+ export async function instantiate(
+   source: Module | BufferSource,
+   imports: ImportObject = {}
+-): Promise<Instance> {
++) {
+   if (source instanceof Module) {
+     return new Instance(source, imports);
+   } else {
+     const module = await compile(source);
+-    return new Instance(module, imports);
++    return { module, instance: new Instance(module, imports) };
+   }
+ }
+ 
+@@ -76,7 +80,6 @@ export async function instantiateStreaming(
+   importObject?: ImportObject
+ ): Promise<WebAssemblyInstantiatedSource> {
+   const module = await compileStreaming(source);
+-  const instance = instantiate(module, importObject);
+-  // @ts-ignore
++  const instance = await instantiate(module, importObject);
+   return { module, instance };
+ }

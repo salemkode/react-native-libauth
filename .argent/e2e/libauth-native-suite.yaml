@@ -1,0 +1,17 @@
+steps:
+  - echo: Launch LibauthLab; expect the native crypto test bench.
+  - launch:
+      ios: org.reactjs.native.example.LibauthLab
+  - await:
+      visible:
+        text: Ready to test
+      timeout: 10000
+  - await:
+      idle: true
+  - echo: Run the real native crypto suite; expect all 12 checks to pass.
+  - tap:
+      id: run-suite
+  - await:
+      visible:
+        text: All checks passed
+      timeout: 5000

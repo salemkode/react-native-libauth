@@ -1,0 +1,53 @@
+{
+  "name": "react-native-libauth",
+  "version": "0.1.0",
+  "description": "Libauth with ahead-of-time native crypto for React Native, generated from the upstream C/Rust WebAssembly modules.",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "react-native": "src/index.js",
+  "files": [
+    "src",
+    "generated",
+    "native",
+    "wasm",
+    "LibauthNative.podspec",
+    "android",
+    "react-native.config.js",
+    "patches",
+    "scripts",
+    "polygen.config.mjs",
+    "setup.js",
+    "!native/polygen-output.json",
+    "!native/metro.json",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@callstack/polygen": "0.2.1",
+    "fast-text-encoding": "^1.0.6",
+    "react-native-get-random-values": "^1.11.0",
+    "patch-package": "8.0.1",
+    "@callstack/polygen-cli": "0.2.1",
+    "@callstack/polygen-config": "0.2.1"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-native": ">=0.81 <0.82",
+    "@bitauth/libauth": "3.0.0"
+  },
+  "bin": {
+    "libauth-native": "scripts/generate.mjs"
+  },
+  "homepage": "https://github.com/salemkode/react-native-libauth#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/salemkode/react-native-libauth.git",
+    "directory": "packages/react-native-libauth"
+  },
+  "bugs": {
+    "url": "https://github.com/salemkode/react-native-libauth/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

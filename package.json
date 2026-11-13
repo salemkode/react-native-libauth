@@ -1,0 +1,46 @@
+{
+  "name": "libauth-native-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "example"
+  ],
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "typecheck": "npm run typecheck --workspace example",
+    "start": "npm run start --workspace example -- --port 8097",
+    "ios": "npm run ios --workspace example -- --port 8097 --no-packager",
+    "android": "npm run android --workspace example -- --port 8097 --no-packager",
+    "doctor": "node scripts/doctor.mjs",
+    "setup:toolchain": "node packages/react-native-libauth/scripts/setup-toolchain.mjs",
+    "fixtures": "node scripts/make-fixtures.mjs",
+    "postinstall": "node scripts/generate.mjs --js-only",
+    "test:consumer": "node scripts/test-consumer.mjs",
+    "lint": "npm run lint --workspace example"
+  },
+  "devDependencies": {
+    "@bitauth/libauth": "3.0.0",
+    "@callstack/polygen-cli": "0.2.1",
+    "@callstack/polygen-config": "0.2.1",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "@react-native-community/cli": "20.0.0",
+    "@react-native-community/cli-platform-ios": "20.0.0",
+    "@react-native-community/cli-platform-android": "20.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "allowScripts": {
+    "@callstack/polygen-cli": true,
+    "@callstack/polygen-codegen": true,
+    "@callstack/polygen-config": true,
+    "@callstack/polygen-project": true,
+    "@callstack/polygen-binary-utils": true,
+    "@callstack/wasm-parser": true,
+    "core-js": false,
+    "fsevents": true
+  }
+}

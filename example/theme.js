@@ -1,0 +1,45 @@
+import { Platform } from 'react-native';
+
+export const colors = {
+  paper: '#F5F3ED', ink: '#22251F', muted: '#73766C', line: '#DDDCD2',
+  card: '#FFFFFF', green: '#31533C', paleGreen: '#E8EDE3', red: '#A33732',
+};
+const mono = Platform.select({ ios: 'Menlo', default: 'monospace' });
+
+export const styles = {
+  safe: { flex: 1, backgroundColor: colors.paper },
+  page: { paddingHorizontal: 24, paddingTop: 22, paddingBottom: 36, maxWidth: 680, width: '100%', alignSelf: 'center' },
+  topline: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+  eyebrow: { color: colors.muted, fontSize: 9, fontWeight: '600', letterSpacing: 1.3 },
+  badge: { color: colors.green, backgroundColor: colors.paleGreen, fontSize: 9, fontWeight: '600', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 4 },
+  title: { color: colors.ink, fontSize: 43, fontWeight: '600', letterSpacing: -1.8, lineHeight: 48, marginTop: 30 },
+  intro: { color: colors.muted, fontSize: 15, lineHeight: 23, marginTop: 15 },
+  pipeline: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.line, paddingVertical: 15, marginVertical: 23 },
+  pipelineText: { color: colors.green, fontFamily: mono, fontSize: 11 },
+  statusCard: { padding: 22, borderRadius: 14, backgroundColor: colors.ink },
+  cardKicker: { color: colors.paleGreen, fontSize: 10, letterSpacing: 1.5 },
+  statusTitle: { color: colors.card, fontSize: 25, fontWeight: '500', marginTop: 12, letterSpacing: -0.5 },
+  statusSubtitle: { color: colors.line, fontSize: 13, lineHeight: 20, marginTop: 7 },
+  metrics: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 23 },
+  metric: { color: colors.card, fontSize: 26, fontWeight: '400', fontVariant: ['tabular-nums'] },
+  metricLabel: { color: colors.line, fontSize: 10, marginTop: 4 },
+  primaryButton: { backgroundColor: colors.paleGreen, borderRadius: 7, padding: 15, alignItems: 'center' },
+  primaryLabel: { color: colors.ink, fontWeight: '600', fontSize: 14 },
+  pressed: { opacity: 0.8 }, disabled: { opacity: 0.5 },
+  sectionHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 28, marginBottom: 14 },
+  sectionTitle: { fontSize: 18, color: colors.ink, fontWeight: '500', letterSpacing: -0.3 },
+  small: { fontSize: 10, color: colors.muted, fontFamily: mono },
+  empty: { fontSize: 13, lineHeight: 21, color: colors.muted, paddingBottom: 4 },
+  result: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.line },
+  resultLine: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  resultName: { flex: 1, fontSize: 12, color: colors.ink },
+  pass: { color: colors.green, fontSize: 16, fontWeight: '700' }, fail: { color: colors.red, fontSize: 16, fontWeight: '700' },
+  error: { color: colors.red, fontSize: 12, lineHeight: 19, marginTop: 12 },
+  playground: { marginTop: 29, borderTopWidth: 1, borderColor: colors.line, paddingTop: 23 },
+  caption: { fontSize: 11, color: colors.muted, marginTop: 7, marginBottom: 14 },
+  input: { color: colors.ink, backgroundColor: colors.card, borderColor: colors.line, borderWidth: 1, borderRadius: 7, padding: 14, fontSize: 15, minHeight: 65 },
+  secondaryButton: { borderWidth: 1, borderColor: colors.green, borderRadius: 7, padding: 14, alignItems: 'center', marginTop: 10 },
+  secondaryLabel: { color: colors.green, fontSize: 13, fontWeight: '600' },
+  digest: { fontFamily: mono, fontSize: 12, color: colors.green, lineHeight: 20, backgroundColor: colors.paleGreen, borderRadius: 6, padding: 12, marginTop: 12 },
+  footer: { color: colors.muted, fontSize: 9, letterSpacing: 0.5, lineHeight: 17, marginTop: 30 },
+};

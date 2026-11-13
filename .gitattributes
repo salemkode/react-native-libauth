@@ -1,0 +1,4 @@
+* text=auto
+*.bat text eol=crlf
+# Unified patch context must retain upstream whitespace exactly.
+*.patch -text -whitespace
