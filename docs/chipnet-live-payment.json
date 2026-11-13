@@ -1,0 +1,52 @@
+{
+  "network": "chipnet",
+  "address": "bchtest:qqlzjne743ng8k9n3k94ftkkmlq25mugeshs7k6kfk",
+  "txid": "f9137bf69ac64636b99fd96668336981775975d31e0e1141ea8c750a53cf2da3",
+  "checkedAt": "2026-11-13T15:29:51.624Z",
+  "results": {
+    "1": {
+      "confirmed": 1017000,
+      "unconfirmed": -226
+    },
+    "2": [
+      {
+        "height": 0,
+        "tx_hash": "f9137bf69ac64636b99fd96668336981775975d31e0e1141ea8c750a53cf2da3",
+        "tx_pos": 0,
+        "value": 1000
+      },
+      {
+        "height": 0,
+        "tx_hash": "f9137bf69ac64636b99fd96668336981775975d31e0e1141ea8c750a53cf2da3",
+        "tx_pos": 1,
+        "value": 1015774
+      }
+    ],
+    "3": [
+      {
+        "height": 332171,
+        "tx_hash": "46b248df1603551d0c0f30feeba015e53119a1e9ef10d02a002d03b968c69066"
+      },
+      {
+        "fee": 226,
+        "height": 0,
+        "tx_hash": "f9137bf69ac64636b99fd96668336981775975d31e0e1141ea8c750a53cf2da3"
+      }
+    ],
+    "4": "02000000016690c668b9032d002ad010efe9a11931e515a0ebfe300f0c1d550316df48b24600000000644179686f21ca5aef1a10c2b56b194645af759da3b388db9bd2923a6505170af2a2b82286155af14f0895f73934c0c17e78891179328034f918503c089c7f5e21eb4121020ead53e6d35693174646eb373406932a84fb2c0f2adb3a800b5ce4324e3a7ec8ffffffff02e8030000000000001976a9143e294f3eac6683d8b38d8b54aed6dfc0aa6f88cc88acde7f0f00000000001976a9143e294f3eac6683d8b38d8b54aed6dfc0aa6f88cc88ac00000000"
+  },
+  "transactionHashVerified": true,
+  "broadcastStatus": "visible in Chipnet mempool; unconfirmed at verification",
+  "appVerification": {
+    "platform": "ios-simulator",
+    "bundleId": "cash.xo.wallet",
+    "receivedBalanceBch": "0.01017000",
+    "selfPaymentBch": "0.00001000",
+    "feeSatoshis": 226,
+    "balanceAfterRestartBch": "0.01016774",
+    "receiptPersistedAfterRestart": true
+  },
+  "packageSourceCommit": "4072eee576486e618f362fcb3206f9f8d94fdf9b",
+  "templateSourceCommit": "22d046fcd7c940678c367eefa412705006561371",
+  "note": "Public Chipnet test data only. Independent Electrum reads corroborate a manual iOS app payment. Outgoing transaction was unconfirmed when checked; this is not an automated full-flow verdict."
+}

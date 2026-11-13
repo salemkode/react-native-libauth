@@ -106,3 +106,41 @@ React Native Babel transform to catch private-field lowering differences. The
 separate template consumes release tarballs and runs 12 deterministic wallet
 scenarios both in Node and through native crypto on the simulator. See docs/xo.md
 and the template testing guide for public-chain and replay limitations.
+
+## Live Chipnet payment
+
+On 2026-11-13, the separate wallet template consumed the public v0.2.0 release
+tarballs (`react-native-libauth` 0.2.0 and `react-native-xo` 0.1.0) with Libauth
+3.1.0-next.8 and XO primitives 0.0.5. The test ran on an iOS 26.4 simulator,
+React Native 0.81.5, React 19.1, Hermes and the New Architecture.
+
+A newly generated, dedicated Chipnet account received 1,017,000 satoshis from the
+faucet. The receiving transaction was confirmed at height 332171:
+`46b248df1603551d0c0f30feeba015e53119a1e9ef10d02a002d03b968c69066`.
+The app displayed the funded balance, prepared and signed a 1,000-satoshi payment
+to its own address, showed the 226-satoshi fee, and submitted it once through the
+normal review/confirmation UI. No fixture account was funded.
+
+The submitted transaction is
+[`f9137bf69ac64636b99fd96668336981775975d31e0e1141ea8c750a53cf2da3`](https://chipnet.chaingraph.cash/tx/f9137bf69ac64636b99fd96668336981775975d31e0e1141ea8c750a53cf2da3).
+An independent Electrum read returned its raw bytes; a double SHA-256 matched
+the displayed transaction ID. Its two outputs returned 1,000 and 1,015,774 satoshis
+to the wallet. An app restart preserved the receipt and displayed 0.01016774 BCH.
+The outgoing transaction was in the mempool, **not yet confirmed**, at verification.
+Only Chipnet test BCH was spent. No private key or recovery phrase was inspected.
+
+See the [public verification record](chipnet-live-payment.json). This is a live
+manual iOS test, not an automated full-flow pass or Android runtime proof. The
+existing saved wallet flows still have the replay limitation documented in the
+template. A long-idle Electrum connection initially required an app restart to
+reconnect; reconnect/refresh controls can also overlap the bottom navigation when
+content extends past the viewport. These remain follow-up issues.
+
+## Upstream coverage boundary
+
+The 40 project checks and 12 native scenarios are not a port of every upstream
+Libauth/XO test. The source audit found AVA and Vitest suites, Node-only crypto
+oracles/filesystem helpers, property tests, and larger VM corpora requiring
+separate adaptation and accounting. That port and native trials of alternative
+WASM runtimes remain unfinished. Do not describe them as passing or use the
+current checks to claim universal Rust/C++ compatibility or a fastest backend.

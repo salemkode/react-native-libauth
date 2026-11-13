@@ -187,11 +187,17 @@ and BIP32 derivation. BCH Schnorr is distinct from BIP340.
 
 | Check | Local evidence |
 | --- | --- |
-| Automated suite | 23 tests passing |
+| Automated suite | 40 tests passing |
 | Consumer declarations | TypeScript passing |
 | iOS and Android arm64 | Native builds passing |
 | iOS simulator | 12 native checks passing; recorded flow replay passing |
 | Android device/emulator | Runtime validation not yet performed |
+| Live Chipnet payment from the template | Received faucet funds, submitted a self-payment, and restored receipt/balance after restart; [evidence](docs/testing.md#live-chipnet-payment) |
+
+These are this project's regression checks, not the complete upstream Libauth/XO
+test suites. Porting all upstream tests to React Native and executing comparative
+trials of other WASM runtimes remain unfinished. Polygen is the backend exercised
+by this project; no measured claim that it outperforms other runtimes is made.
 
 To replay the native check with Argent 0.32:
 
@@ -217,5 +223,5 @@ docs/                          Integration, architecture, and testing guides
 ## License
 
 New adapter code is [MIT](LICENSE). Libauth, Polygen, WABT, and the other dependencies
-retain their upstream licenses and notices. Access to this repository is private;
-collaborators need an invitation.
+retain their upstream licenses and notices. This repository and the separate
+wallet template are public.
