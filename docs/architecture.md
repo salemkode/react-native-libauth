@@ -5,7 +5,11 @@ build command, rather than reimplementing libauth or maintaining a parallel API.
 
 ## Build inputs and outputs
 
-Inputs are the original five `.wasm` files shipped inside `@bitauth/libauth@3.0.0`:
+Both libauth 3.0.0 and 3.1.0-next.8 are supported exactly. Their original five
+WASM binaries have identical SHA-256 hashes; the initialization template is also
+unchanged. Each version passes a separate isolated consumer check.
+
+Inputs are the original five `.wasm` files shipped inside `@bitauth/libauth@3.1.0-next.8`:
 SHA-1, SHA-256, SHA-512, RIPEMD-160, and secp256k1. Those came from upstream Rust
 and C. WABT's wasm2c converts them to C; Polygen generates the JSI glue and registry.
 

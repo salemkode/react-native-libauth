@@ -19,3 +19,4 @@ example/vendor/
 packages/react-native-libauth/generated/
 packages/react-native-libauth/native/
 packages/react-native-libauth/wasm/
+wallet-template/

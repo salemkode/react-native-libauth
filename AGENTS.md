@@ -2,7 +2,10 @@
 
 ## Scope
 
-This is a small native compatibility adapter for the REAL @bitauth/libauth 3.0.0.
+This is a small native compatibility adapter for the REAL @bitauth/libauth 3.0.0 or 3.1.0-next.8.
+The companion packages/react-native-xo implements a small BCH wallet using real
+XO primitives. Keep it independent of the separately hosted wallet template;
+do not import template files or add the full XO engine without explicit scope.
 Keep normal computation imports and TypeScript types in @bitauth/libauth. Do not
 reintroduce a copied libauth tree, vendored Polygen runtime, parallel crypto API,
 or silent JavaScript fallback. The example app is optional development tooling.

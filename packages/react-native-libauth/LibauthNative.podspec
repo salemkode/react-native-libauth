@@ -15,6 +15,9 @@ Pod::Spec.new do |s|
   s.exclude_files = 'native/host/wasm-rt/*.c'
   s.header_mappings_dir = 'native/host'
   s.pod_target_xcconfig = {
+    # wasm2c kernels need optimization even when the host app uses Debug/Hermes.
+    # Keep this scoped to our pod; do not alter the application's build settings.
+    'GCC_OPTIMIZATION_LEVEL' => '2',
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
     'HEADER_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/native/host/wasm-rt"'
   }
