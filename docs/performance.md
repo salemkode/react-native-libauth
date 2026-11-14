@@ -20,7 +20,10 @@ These are medians of nine batch averages per operation after three warmup calls.
 They exclude cold initialization, network round trips and rendering. Batches use
 identical iteration counts and inputs across runtimes. Timings were collected
 without profilers attached. Raw samples are in [performance-results.json](performance-results.json).
-The optimized build also passed all 12 native wallet correctness scenarios.
+A repeat run measured 0.411 ms for 64 KiB hashing, 0.210 ms for signing and
+59.267 ms for seed derivation. The 1 KiB hash varied to 0.037 ms; avoid
+claiming stable parity for that small workload. Repeat samples are also retained.
+The optimized build passed all 12 native wallet correctness scenarios.
 
 This is **not a browser comparison or a production-phone speed guarantee**.
 Node's V8 WASM is a useful reference, but actual Chrome/Safari, physical devices,
