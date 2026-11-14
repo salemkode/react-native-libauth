@@ -116,7 +116,7 @@ also a SHA-256 input field. The app uses fixed test keys, not a real wallet.
 ## Use it in your own app
 
 The adapter is **not published to the npm registry**. Public release tarballs are
-[available on GitHub](https://github.com/salemkode/react-native-libauth/releases/tag/v0.2.0).
+[available on GitHub](https://github.com/salemkode/react-native-libauth/releases/tag/v0.2.1).
 You can also build a tarball from this repository, then
 install it into your existing React Native 0.81 app:
 
@@ -126,7 +126,7 @@ mkdir -p artifacts
 npm pack --workspace packages/react-native-libauth --pack-destination artifacts
 
 # In your app (replace the tarball path):
-npm install /absolute/path/react-native-libauth-0.2.0.tgz \
+npm install /absolute/path/react-native-libauth-0.2.1.tgz \
   @bitauth/libauth@3.1.0-next.8 @callstack/polygen@0.2.1 \
   react-native-get-random-values@1.11.0
 npx libauth-native --setup
@@ -166,6 +166,14 @@ The [architecture notes](docs/architecture.md) list the exact dependency mutatio
 native fixes, and constraints. The adapter also changes initialization in the
 installed Node copy of libauth; Node tools sharing that dependency must call its
 explicit initializer, as this repository's tests and fixture tool do.
+
+## Performance
+
+The iOS crypto pod is optimized independently of the app build. The measured
+64 KiB SHA-256 workload improved from 4.70 ms to 0.42 ms in the simulator.
+Signing and seed derivation still trail the Node WASM reference. See the
+[benchmark method, raw samples and limitations](docs/performance.md); actual
+browser and physical-phone parity have not been established.
 
 ## Verification
 

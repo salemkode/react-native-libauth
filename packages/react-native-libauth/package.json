@@ -1,6 +1,6 @@
 {
   "name": "react-native-libauth",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Libauth with ahead-of-time native crypto for React Native, generated from the upstream C/Rust WebAssembly modules.",
   "main": "src/index.js",
   "types": "src/index.d.ts",

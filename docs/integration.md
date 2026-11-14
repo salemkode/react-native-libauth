@@ -24,7 +24,7 @@ mkdir -p artifacts
 npm pack --workspace packages/react-native-libauth --pack-destination artifacts
 ```
 
-Copy `artifacts/react-native-libauth-0.2.0.tgz` to a stable location for your app
+Copy `artifacts/react-native-libauth-0.2.1.tgz` to a stable location for your app
 and CI. Do not commit it here or rely on a temporary absolute path on another
 developer's machine. A team can place the tarball in its own authorized artifact
 store; this project has not published a registry release.
@@ -34,7 +34,7 @@ store; this project has not published a registry release.
 Run in the directory containing your app's `package.json`:
 
 ```sh
-npm install /absolute/path/react-native-libauth-0.2.0.tgz \
+npm install /absolute/path/react-native-libauth-0.2.1.tgz \
   @bitauth/libauth@3.1.0-next.8 \
   @callstack/polygen@0.2.1 \
   react-native-get-random-values@1.11.0

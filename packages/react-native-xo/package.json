@@ -1,6 +1,6 @@
 {
   "name": "react-native-xo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Small BCH send/receive wallet core using real XO primitives and native libauth in React Native.",
   "type": "module",
   "main": "src/index.js",
@@ -30,7 +30,7 @@
   },
   "peerDependencies": {
     "@bitauth/libauth": "3.1.0-next.8",
-    "react-native-libauth": "0.2.0"
+    "react-native-libauth": "0.2.1"
   },
   "repository": {
     "type": "git",
